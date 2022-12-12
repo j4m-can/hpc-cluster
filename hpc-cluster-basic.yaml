@@ -1,0 +1,208 @@
+name: hpc-cluster-basic
+
+description: |
+  Basic HPC cluster using juju and charms.
+
+#variables:
+
+series: jammy
+
+#tags:
+
+applications:
+  head:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 1
+    #constraints: cores=2 mem=4G
+
+  interactive:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 2
+    #constraints: cores=2 mem=4G
+
+  service-ldap:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 1
+    #constraints: cores=2 mem=4G
+
+  service-slurm:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 1
+    #constraints: cores=2 mem=4G
+
+  compute:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 1
+    #constraints: cores=2 mem=8G
+
+  compute-2c-8g:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=2 mem=8G
+
+  compute-8c-64g:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=8 mem=64G
+
+  compute-64c-256g:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=64 mem=256G
+
+  compute-ai:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=2 mem=8G
+
+  compute-mpi:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=2 mem=8G
+
+  compute-science:
+    #charm: hpct-node
+    charm: ./hpct-node_ubuntu-22.04-amd64.charm
+    series: jammy
+    num_units: 0
+    #constraints: cores=2 mem=8G
+
+  #
+  # subordinates
+  #
+
+  ldap-client:
+    #charm: hpct-node-subordinate
+    charm: ./hpct-node-subordinate_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  ldap-server:
+    #charm: hpct-node-subordinate
+    charm: ./hpct-node-subordinate_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  slurm-client:
+    #charm: hpct-node-subordinate
+    charm: ./hpct-node-subordinate_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  slurm-server:
+    #charm: hpct-node-subordinate
+    charm: ./hpct-node-subordinate_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-apptainer:
+    #charm: hpct-apptainer
+    charm: ./hpct-apptainer_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-gpu-nvidia:
+    #charm: hpct-gpu-nvidia
+    charm: ./hpct-gpu-nvidia_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-infiniband:
+    #charm: hpct-infiniband
+    charm: ./hpct-infiniband_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-mpich:
+    #charm: hpct-mpich
+    charm: ./hpct-mpich_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-nhc:
+    #charm: hpct-nhc
+    charm: ./hpct-nhc_ubuntu-22.04-amd64.charm
+    series: jammy
+
+  hpct-openmpi:
+    #charm: hpct-openmpi
+    charm: ./hpct-openmpi_ubuntu-22.04-amd64.charm
+    series: jammy
+
+
+relations:
+# head
+- - head:node
+  - ldap-client:node
+- - head:node
+  - slurm-client:node
+- - head:node
+  - hpct-infiniband:node
+
+# interactive
+- - interactive:node
+  - ldap-client:node
+- - interactive:node
+  - slurm-client:node
+- - interactive:node
+  - hpct-infiniband:node
+
+# ldap
+- - service-ldap:node
+  - ldap-server:node
+- - service-ldap:node
+  - hpct-infiniband:node
+
+# slurm
+- - service-slurm:node
+  - ldap-client:node
+- - service-slurm:node
+  - slurm-server:node
+- - service-slurm:node
+  - hpct-infiniband:node
+
+# compute
+- - compute:node
+  - ldap-client:node
+- - compute:node
+  - slurm-client:node
+- - compute:node
+  - hpct-infiniband:node
+
+# compute-mpi
+- - compute-mpi:node
+  - ldap-client:node
+- - compute-mpi:node
+  - slurm-client:node
+- - compute-mpi:node
+  - hpct-infiniband:node
+- - compute-mpi:node
+  - hpct-openmpi:node
+
+# compute-ai
+- - compute-ai:node
+  - ldap-client:node
+- - compute-ai:node
+  - slurm-client:node
+- - compute:node
+  - hpct-infiniband:node
+
+# compute-science
+- - compute-science:node
+  - ldap-client:node
+- - compute-science:node
+  - slurm-client:node
+- - compute-science:node
+  - hpct-infiniband:node
